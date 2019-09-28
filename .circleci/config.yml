@@ -17,7 +17,7 @@ commands:
       - run:
           name: Setup Github Token for fetching codes private repository
           command: |
-            echo "machine github.com login $HOMEBREW_GITHUB_API_TOKEN}" > ~/.netrc
+            echo "machine github.com login ${HOMEBREW_GITHUB_API_TOKEN}" > ~/.netrc
             if [ -f ~/.gitconfig ]; then rm ~/.gitconfig; fi
       - run:
           name: Show kernel versions
@@ -227,7 +227,7 @@ jobs:
       xcode: "10.3.0"
     <<: *env
     working_directory: ~/src/github.com/zchee/circleci-darwin-build
-    shell: /bin/bash -eux -o pipefail
+    shell: /bin/bash -eu -o pipefail
     steps:
       - checkout
       - build-llvm
@@ -236,7 +236,7 @@ jobs:
       xcode: "11.0.0"
     <<: *env
     working_directory: ~/src/github.com/zchee/circleci-darwin-build
-    shell: /bin/bash -eux -o pipefail
+    shell: /bin/bash -eu -o pipefail
     steps:
       - checkout
       - build-llvm
@@ -245,7 +245,7 @@ jobs:
       xcode: "11.1.0"
     <<: *env
     working_directory: ~/src/github.com/zchee/circleci-darwin-build
-    shell: /bin/bash -eux -o pipefail
+    shell: /bin/bash -eu -o pipefail
     steps:
       - checkout
       - build-llvm
