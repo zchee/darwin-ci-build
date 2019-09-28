@@ -10,12 +10,6 @@ steps:
   displayName: Show kernel versions
 
 - script: |
-    mkdir -p $HOMEBREW_CACHE
-  env:
-    HOMEBREW_CACHE: "${HOME}/.cache/Homebrew"
-  displayName: mkdir HOMEBREW_CACHE directory
-
-- script: |
     brew list
     brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/binutils.rb
     brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/cmake.rb
@@ -29,7 +23,6 @@ steps:
     brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/swig.rb
   env:
     HOMEBREW_GITHUB_API_TOKEN: $HOMEBREW_GITHUB_API_TOKEN
-    HOMEBREW_CACHE: "${HOME}/.cache/Homebrew"
     HOMEBREW_DEBUG: "1"
     HOMEBREW_DEVELOPER: "0"
     HOMEBREW_NO_ANALYTICS: "1"
@@ -48,7 +41,6 @@ steps:
     brew install zchee/formula/llvm-toolchain --build-from-source
   env:
     HOMEBREW_GITHUB_API_TOKEN: $HOMEBREW_GITHUB_API_TOKEN
-    HOMEBREW_CACHE: "${HOME}/.cache/Homebrew"
     HOMEBREW_DEBUG: "1"
     HOMEBREW_DEVELOPER: "0"
     HOMEBREW_NO_ANALYTICS: "1"
