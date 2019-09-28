@@ -1,0 +1,254 @@
+pool:
+  vmImage: 'macos-10.13'
+
+steps:
+- script: |
+    uname -a
+    sw_vers
+    xcodebuild -version
+    system_profiler SPHardwareDataType
+  displayName: Show kernel versions
+
+- script: |
+    mkdir -p $HOMEBREW_CACHE
+  env:
+    HOMEBREW_CACHE: "${HOME}/.cache/Homebrew"
+  displayName: mkdir HOMEBREW_CACHE directory
+
+- script: |
+    brew list
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/binutils.rb
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/cmake.rb
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/doxygen.rb
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/gnu-tar.rb
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/libxml2.rb
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/ninja.rb
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/pkg-config.rb
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/protobuf.rb
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/sphinx-doc.rb
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/swig.rb
+  env:
+    HOMEBREW_GITHUB_API_TOKEN: $HOMEBREW_GITHUB_API_TOKEN
+    HOMEBREW_CACHE: "${HOME}/.cache/Homebrew"
+    HOMEBREW_DEBUG: "1"
+    HOMEBREW_DEVELOPER: "0"
+    HOMEBREW_NO_ANALYTICS: "1"
+    HOMEBREW_NO_AUTO_UPDATE: "1"
+    HOMEBREW_NO_INSTALL_CLEANUP: "1"
+    HOMEBREW_VERBOSE: "1"
+  displayName: Install dependency formulas
+
+- script: |
+    ./scripts/codesign.bash lldb_codesign
+    rm -f ./lldb_codesign.*
+  displayName: Generate lldb_codesign to Keychain
+
+- script: |
+    brew tap zchee/formula
+    brew install zchee/formula/llvm-toolchain --build-from-source
+  env:
+    HOMEBREW_GITHUB_API_TOKEN: $HOMEBREW_GITHUB_API_TOKEN
+    HOMEBREW_CACHE: "${HOME}/.cache/Homebrew"
+    HOMEBREW_DEBUG: "1"
+    HOMEBREW_DEVELOPER: "0"
+    HOMEBREW_NO_ANALYTICS: "1"
+    HOMEBREW_NO_AUTO_UPDATE: "1"
+    HOMEBREW_NO_INSTALL_CLEANUP: "1"
+    HOMEBREW_VERBOSE: "1"
+  displayName: Install LLVM toolchain via Homebrew
+
+- script: |
+    gtar -czf ~/tarballs/llvm-dist-$(echo ${Build.SourceBranchName} | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-${Build.SourceVersion}.tar.gz /usr/local/Cellar/llvm-toolchain/9.0.0
+  workingDirectory: ~/tarballs
+  displayName: Compress compiled LLVM toolchain
+
+- script: |
+    cp /llvm-dist-$(echo ${Build.SourceBranchName} | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-${Build.SourceVersion}.tar.gz $(Build.ArtifactStagingDirectory)
+  displayName: Save build artifacts
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    artifactName: 'Mojave'
+    pathtoPublish: $(Build.ArtifactStagingDirectory)
+
+- task: GitHubRelease@0
+  inputs:
+    gitHubConnection: 'artifact'
+    repositoryName: 'zchee/darwin-ci-build'
+    tagSource: 'auto'
+    assets: '$(Build.ArtifactStagingDirectory)/*/*'
+    assetUploadMode: 'replace'
+    isDraft: false
+    isPreRelease: false
+    addChangeLog: false
+    displayName: Release to GitHub
+
+# jobs:
+#   - job: HighSierra
+#     pool:
+#       vmImage: 'macos-10.13'
+#       steps:
+#       - displayName: Show kernel versions
+#         script: |
+#           uname -a
+#           sw_vers
+#           xcodebuild -version
+#           system_profiler SPHardwareDataType
+#
+#       - displayName: mkdir HOMEBREW_CACHE directory
+#         script: |
+#           mkdir -p $HOMEBREW_CACHE
+#
+#       - displayName: Install dependency formulas
+#         script: |
+#           brew list
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/binutils.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/cmake.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/doxygen.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/gnu-tar.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/libxml2.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/ninja.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/pkg-config.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/protobuf.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/sphinx-doc.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/swig.rb
+#         env:
+#           HOMEBREW_GITHUB_API_TOKEN: $HOMEBREW_GITHUB_API_TOKEN
+#           HOMEBREW_CACHE: "${HOME}/.cache/Homebrew"
+#           HOMEBREW_DEBUG: "1"
+#           HOMEBREW_DEVELOPER: "0"
+#           HOMEBREW_NO_ANALYTICS: "1"
+#           HOMEBREW_NO_AUTO_UPDATE: "1"
+#           HOMEBREW_NO_INSTALL_CLEANUP: "1"
+#           HOMEBREW_VERBOSE: "1"
+#
+#       - displayName: Generate lldb_codesign to Keychain
+#         script: |
+#           ./scripts/codesign.bash lldb_codesign
+#           rm -f ./lldb_codesign.*
+#
+#       - displayName: Install LLVM toolchain via Homebrew
+#         script: |
+#           brew tap zchee/formula
+#           brew install zchee/formula/llvm-toolchain --build-from-source
+#         env:
+#           HOMEBREW_GITHUB_API_TOKEN: $HOMEBREW_GITHUB_API_TOKEN
+#           HOMEBREW_CACHE: "${HOME}/.cache/Homebrew"
+#           HOMEBREW_DEBUG: "1"
+#           HOMEBREW_DEVELOPER: "0"
+#           HOMEBREW_NO_ANALYTICS: "1"
+#           HOMEBREW_NO_AUTO_UPDATE: "1"
+#           HOMEBREW_NO_INSTALL_CLEANUP: "1"
+#           HOMEBREW_VERBOSE: "1"
+#
+#       - displayName: Compress compiled LLVM toolchain
+#         workingDirectory: ~/tarballs
+#         script: |
+#           gtar -czf ~/tarballs/llvm-dist-$(echo ${Build.SourceBranchName} | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-${Build.SourceVersion}.tar.gz /usr/local/Cellar/llvm-toolchain/9.0.0
+#
+#       - displayName: Save build artifacts
+#         script: |
+#           cp /llvm-dist-$(echo ${Build.SourceBranchName} | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-${Build.SourceVersion}.tar.gz $(Build.ArtifactStagingDirectory)
+#
+#       - task: PublishBuildArtifacts@1
+#         inputs:
+#           artifactName: 'Mojave'
+#           pathtoPublish: $(Build.ArtifactStagingDirectory)
+#
+#   - job: Mojave
+#     pool:
+#       vmImage: 'macos-10.14'
+#       steps:
+#       - script: |
+#           uname -a
+#           sw_vers
+#           xcodebuild -version
+#           system_profiler SPHardwareDataType
+#         displayName: Show kernel versions
+#
+#       - script: |
+#           mkdir -p $HOMEBREW_CACHE
+#         displayName: mkdir HOMEBREW_CACHE directory
+#
+#       - script: |
+#           brew list
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/binutils.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/cmake.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/doxygen.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/gnu-tar.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/libxml2.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/ninja.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/pkg-config.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/protobuf.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/sphinx-doc.rb
+#           brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/swig.rb
+#         env:
+#           HOMEBREW_GITHUB_API_TOKEN: $HOMEBREW_GITHUB_API_TOKEN
+#           HOMEBREW_CACHE: "${HOME}/.cache/Homebrew"
+#           HOMEBREW_DEBUG: "1"
+#           HOMEBREW_DEVELOPER: "0"
+#           HOMEBREW_NO_ANALYTICS: "1"
+#           HOMEBREW_NO_AUTO_UPDATE: "1"
+#           HOMEBREW_NO_INSTALL_CLEANUP: "1"
+#           HOMEBREW_VERBOSE: "1"
+#         displayName: Install dependency formulas
+#
+#       - script: |
+#           ./scripts/codesign.bash lldb_codesign
+#           rm -f ./lldb_codesign.*
+#         displayName: Generate lldb_codesign to Keychain
+#
+#       - script: |
+#           brew tap zchee/formula
+#           brew install zchee/formula/llvm-toolchain --build-from-source
+#         env:
+#           HOMEBREW_GITHUB_API_TOKEN: $HOMEBREW_GITHUB_API_TOKEN
+#           HOMEBREW_CACHE: "${HOME}/.cache/Homebrew"
+#           HOMEBREW_DEBUG: "1"
+#           HOMEBREW_DEVELOPER: "0"
+#           HOMEBREW_NO_ANALYTICS: "1"
+#           HOMEBREW_NO_AUTO_UPDATE: "1"
+#           HOMEBREW_NO_INSTALL_CLEANUP: "1"
+#           HOMEBREW_VERBOSE: "1"
+#         displayName: Install LLVM toolchain via Homebrew
+#
+#       - script: |
+#           gtar -czf ~/tarballs/llvm-dist-$(echo ${Build.SourceBranchName} | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-${Build.SourceVersion}.tar.gz /usr/local/Cellar/llvm-toolchain/9.0.0
+#         workingDirectory: ~/tarballs
+#         displayName: Compress compiled LLVM toolchain
+#
+#       - script: |
+#           cp /llvm-dist-$(echo ${Build.SourceBranchName} | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-${Build.SourceVersion}.tar.gz $(Build.ArtifactStagingDirectory)
+#         displayName: Save build artifacts
+#
+#       - task: PublishBuildArtifacts@1
+#         inputs:
+#           artifactName: 'Mojave'
+#           pathtoPublish: $(Build.ArtifactStagingDirectory)
+#
+#   - job: Release
+#     dependsOn:
+#     - HighSierra
+#     - Mojave
+#     steps:
+#     - task: DownloadBuildArtifacts@0
+#       inputs:
+#         downloadType: 'specific'
+#         itemPattern: '**'
+#         downloadPath: $(Build.ArtifactStagingDirectory)
+#
+#     - script: ls $(Build.ArtifactStagingDirectory)
+#
+#     - task: GitHubRelease@0
+#       inputs:
+#         gitHubConnection: 'artifact'
+#         repositoryName: 'zchee/darwin-ci-build'
+#         tagSource: 'auto'
+#         releaseNotesSource: 'input'
+#         releaseNotes: '[Changelog](https://github.com/zchee/darwin-ci-build/blob/master/CHANGELOG.md)'
+#         assets: '$(Build.ArtifactStagingDirectory)/*/*'
+#         assetUploadMode: 'replace'
+#         isDraft: false
+#         isPreRelease: false
+#         addChangeLog: false
+#         displayName: Release to GitHub
