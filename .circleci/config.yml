@@ -15,11 +15,6 @@ commands:
   build-llvm:
     steps:
       - run:
-          name: Setup Github Token for fetching codes private repository
-          command: |
-            echo "machine github.com login ${HOMEBREW_GITHUB_API_TOKEN}" > ~/.netrc
-            if [ -f ~/.gitconfig ]; then rm ~/.gitconfig; fi
-      - run:
           name: Show kernel versions
           command: |
             uname -a
