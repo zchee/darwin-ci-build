@@ -11,16 +11,16 @@ steps:
 
 - script: |
     brew list
-    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/binutils.rb
-    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/cmake.rb
-    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/doxygen.rb
-    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/gnu-tar.rb
-    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/libxml2.rb
-    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/ninja.rb
-    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/pkg-config.rb
-    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/protobuf.rb
-    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/sphinx-doc.rb
-    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/swig.rb
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/binutils.rb   || true
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/cmake.rb      || true
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/doxygen.rb    || true
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/gnu-tar.rb    || true
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/libxml2.rb    || true
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/ninja.rb      || true
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/pkg-config.rb || true
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/protobuf.rb   || true
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/sphinx-doc.rb || true
+    brew install https://github.com/Homebrew/homebrew-core/raw/master/Formula/swig.rb       || true
   env:
     HOMEBREW_GITHUB_API_TOKEN: $HOMEBREW_GITHUB_API_TOKEN
     HOMEBREW_DEBUG: "1"
