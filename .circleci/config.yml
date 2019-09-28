@@ -5,7 +5,6 @@ env: &env
     HOMEBREW_CACHE: /Users/distiller/.cache/Homebrew
     HOMEBREW_DEBUG: "1"
     HOMEBREW_DEVELOPER: "0"
-    # HOMEBREW_GITHUB_API_TOKEN:
     HOMEBREW_MAKE_JOBS: 16
     HOMEBREW_NO_ANALYTICS: "1"
     HOMEBREW_NO_AUTO_UPDATE: "1"
@@ -15,6 +14,11 @@ env: &env
 commands:
   build-llvm:
     steps:
+      - run:
+          name: Setup Github Token for fetching codes private repository
+          command: |
+            echo "machine github.com login $HOMEBREW_GITHUB_API_TOKEN}" > ~/.netrc
+            if [ -f ~/.gitconfig ]; then rm ~/.gitconfig; fi
       - run:
           name: Show kernel versions
           command: |
