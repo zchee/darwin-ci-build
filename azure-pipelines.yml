@@ -54,11 +54,11 @@ jobs:
 
   - script: |
       mkdir -p /Users/vsts/tarballs
-      gtar -czf /Users/vsts/tarballs/llvm-dist-$(echo ${Build.SourceBranchName} | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-${Build.SourceVersion}.tar.gz /usr/local/Cellar/llvm-toolchain/9.0.0
+      gtar -czf "/Users/vsts/tarballs/llvm-dist-$(echo $Build.SourceBranchName | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-${Build.SourceVersion}.tar.gz" /usr/local/Cellar/llvm-toolchain/9.0.0
     displayName: Compress compiled LLVM toolchain
 
   - script: |
-      cp /llvm-dist-$(echo ${Build.SourceBranchName} | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-${Build.SourceVersion}.tar.gz $(Build.ArtifactStagingDirectory)
+      cp "/llvm-dist-$(echo $Build.SourceBranchName | tr '._/' '-' | tr '[:upper:]' '[:lower:]')-${Build.SourceVersion}.tar.gz" ${Build.ArtifactStagingDirectory}
     displayName: Save build artifacts
 
   - task: PublishBuildArtifacts@1
