@@ -58,7 +58,7 @@ jobs:
     displayName: Compress compiled LLVM toolchain
 
   - script: |
-      cp /Users/vsts/tarballs/llvm-dist.tar.gz $Build.ArtifactStagingDirectory
+      cp /Users/vsts/tarballs/llvm-dist-9.0.0.tar.gz $Build.ArtifactStagingDirectory
     displayName: Save build artifacts
 
   - task: PublishBuildArtifacts@1
