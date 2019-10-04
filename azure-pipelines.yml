@@ -3,7 +3,7 @@ pool:
 
 jobs:
 - job: Mojave
-  timeoutInMinutes: 0
+  timeoutInMinutes: 0  # no limit
   steps:
   - script: |
       uname -a
@@ -57,26 +57,15 @@ jobs:
       gtar -czf /Users/vsts/tarballs/llvm-dist-9.0.0.tar.gz /usr/local/Cellar/llvm-toolchain/9.0.0
     displayName: Compress compiled LLVM toolchain
 
-  - script: |
-      cp /Users/vsts/tarballs/llvm-dist-9.0.0.tar.gz $Build.ArtifactStagingDirectory
-    displayName: Save build artifacts
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifact: 'llvm-dist-9.0.0-PipelineArtifact'
+      targetPath: '/Users/vsts/tarballs/llvm-dist-9.0.0.tar.gz'
 
   - task: PublishBuildArtifacts@1
     inputs:
-      artifactName: 'Mojave'
-      pathtoPublish: $(Build.ArtifactStagingDirectory)
-
-  - task: GitHubRelease@0
-    inputs:
-      gitHubConnection: 'artifact'
-      repositoryName: 'zchee/darwin-ci-build'
-      tagSource: 'auto'
-      assets: '$(Build.ArtifactStagingDirectory)/*/*'
-      assetUploadMode: 'replace'
-      isDraft: false
-      isPreRelease: false
-      addChangeLog: false
-      displayName: Release to GitHub
+      artifactName: 'llvm-dist-9.0.0-BuildArtifacts'
+      pathtoPublish: '/Users/vsts/tarballs/llvm-dist-9.0.0.tar.gz'
 
 # jobs:
 #   - job: HighSierra
